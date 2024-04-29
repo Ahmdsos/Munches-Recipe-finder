@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
+// Component for displaying searched recipes based on ingredients
 function Searched() {
-    const [searchedRecipes, setSearchedRecipes] = useState([]);
-    let params = useParams();
+    const [searchedRecipes, setSearchedRecipes] = useState([]); // State for storing searched recipes
+    let params = useParams(); // Extracting URL parameters
 
+    // Function to fetch recipes based on ingredients
     const getSearched = async (name) => {
         try {
             const data = await fetch(
@@ -22,12 +24,14 @@ function Searched() {
         }
     };
 
+    // Fetching recipes when the search parameter changes
     useEffect(() => {
         if (params.search) {
             getSearched(params.search);
         }
     }, [params.search]);
 
+    // Categorizing recipes based on missing ingredients count
     const categorizedRecipes = {
         canMake: [],
         oneOrTwoMissing: [],
@@ -102,6 +106,7 @@ function Searched() {
     );
 }
 
+// Styled components for styling the searched recipes component
 const Wrapper = styled.div`
   padding: 2rem;
 `;

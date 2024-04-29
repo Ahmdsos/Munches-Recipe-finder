@@ -2,34 +2,43 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
 
+// Component for displaying recipes by cuisine
 function Cuisine() {
-  const [cuisine, setCuisine] = useState([]);
-  const params = useParams();
+  const [cuisine, setCuisine] = useState([]); // State to store recipes for the selected cuisine
+  const params = useParams(); // Get the parameters from the URL
 
+  // Function to fetch recipes based on the cuisine
   const getCuisine = async (name) => {
     try {
       const response = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.REACT_APP_API_KEY}&cuisine=${name}&number=100`
       );
       const recipes = await response.json();
-      setCuisine(recipes.results);
+      setCuisine(recipes.results); // Set the fetched recipes in state
     } catch (error) {
       console.error('Error fetching cuisine:', error);
     }
   };
 
+  // Fetch recipes when component mounts or when the cuisine type changes
   useEffect(() => {
     getCuisine(params.type);
   }, [params.type]);
 
   return (
     <Wrapper>
+      {/* Heading for the selected cuisine */}
       <Heading>{params.type} Cuisine</Heading>
+      {/* Grid for displaying recipe cards */}
       <Grid>
+        {/* Map through the recipes and render each as a card */}
         {cuisine.map((item) => (
           <Card key={item.id}>
+            {/* Link to the individual recipe page */}
             <Link to={`/recipe/${item.id}`}>
+              {/* Image of the recipe */}
               <RecipeImage src={item.image} alt={item.title} />
+              {/* Overlay with the recipe title */}
               <Overlay>
                 <Title>{item.title}</Title>
               </Overlay>
@@ -41,6 +50,7 @@ function Cuisine() {
   );
 }
 
+// Styled components
 const Wrapper = styled.div`
   margin: 4rem 0rem;
 `;
@@ -75,9 +85,11 @@ const Card = styled.div`
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: transform 0.3s ease;
+
   &:hover {
     transform: translateY(-5px);
   }
+
   &:hover img {
     transform: scale(1.1);
   }
@@ -103,6 +115,7 @@ const Overlay = styled.div`
   justify-content: center;
   transition: opacity 0.3s ease;
   opacity: 0;
+
   &:hover {
     opacity: 1;
   }

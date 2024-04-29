@@ -1,7 +1,8 @@
-import { FaPizzaSlice, FaHamburger, FaHome } from "react-icons/fa";
-import { GiNoodles, GiChopsticks } from "react-icons/gi";
+import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { FaPizzaSlice, FaHamburger, FaHome } from "react-icons/fa";
+import { GiNoodles, GiChopsticks } from "react-icons/gi";
 
 function Category() {
   const handleCategoryChange = (e) => {
@@ -14,30 +15,32 @@ function Category() {
   return (
     <>
       <List>
-        <SLink to={"/cuisine/American"} activeClassName="active">
+        <SLink to={"/cuisine/American"} activeclassname="active">
           <FaHamburger />
           <h4>American</h4>
         </SLink>
-        <SLink to={"/cuisine/italian"} activeClassName="active">
+        <SLink to={"/cuisine/italian"} activeclassname="active">
           <FaPizzaSlice />
           <h4>Italian</h4>
         </SLink>
-        <SLink exact to={"/"} activeClassName="active">
+        <SLink to={"/"} activeclassname="active">
           <FaHome />
           <h4>Home</h4>
         </SLink>
-        <SLink to={"/cuisine/Japanese"} activeClassName="active">
+        <SLink to={"/cuisine/Japanese"} activeclassname="active">
           <GiChopsticks />
           <h4>Japanese</h4>
         </SLink>
-        <SLink to={"/cuisine/thai"} activeClassName="active">
+        <SLink to={"/cuisine/thai"} activeclassname="active">
           <GiNoodles />
           <h4>Thai</h4>
         </SLink>
       </List>
+      {/* Select dropdown for other cuisines */}
       <List>
         <CategorySelect onChange={handleCategoryChange}>
           <option value="">Another Cuisines</option>
+          {/* List of available cuisines */}
           <option value="African" >African</option>
           <option value="Asian">Asian</option>
           <option value="American">American</option>
@@ -70,6 +73,7 @@ function Category() {
   );
 }
 
+// Styled components for Category component
 const List = styled.div`
   display: flex;
   justify-content: center;

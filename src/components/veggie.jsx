@@ -4,22 +4,29 @@ import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/splide/dist/css/splide.min.css';
 import { Link } from "react-router-dom";
 
+// Component for displaying vegetarian recipes
 function Veggie() {
+  // State to store vegetarian recipes
   const [veggie, setVeggie] = useState([]);
 
+  // Fetch vegetarian recipes on component mount
   useEffect(() => {
     getVeggie();
   }, []);
 
+  // Function to fetch vegetarian recipes
   const getVeggie = async () => {
     const check = localStorage.getItem('veggie');
     if (check) {
+      // If data exists in local storage, set it in state
       setVeggie(JSON.parse(check));
     } else {
+      // Fetch data from API if not available in local storage
       const api = await fetch (
         `https://api.spoonacular.com/recipes/random?apiKey=${process.env.REACT_APP_API_KEY}&number=12&tags=vegetarian`
       );
       const data = await api.json();
+      // Store fetched data in local storage and set in state
       localStorage.setItem("veggie", JSON.stringify(data.recipes));
       setVeggie(data.recipes);
     }
@@ -27,7 +34,9 @@ function Veggie() {
 
   return (
     <Wrapper>
+      {/* Heading for vegetarian recipes */}
       <Heading>Veggie Recipes</Heading>
+      {/* Splide carousel for displaying vegetarian recipes */}
       <Splide options={{
         perPage: 3,
         arrows: false,
@@ -43,11 +52,16 @@ function Veggie() {
           }
         }
       }}>
+        {/* Map through vegetarian recipes and render each as a SplideSlide */}
         {veggie.map(recipe => (
           <SplideSlide key={recipe.id}>
+            {/* Card for each recipe */}
             <Card>
+              {/* Link to individual recipe page */}
               <Link to={'/recipe/' + recipe.id}>
+                {/* Image of the recipe */}
                 <img src={recipe.image} alt={recipe.title} />
+                {/* Overlay with recipe title */}
                 <Overlay>
                   <Title>{recipe.title}</Title>
                 </Overlay>
@@ -60,6 +74,7 @@ function Veggie() {
   );
 }
 
+// Styled components
 const Wrapper = styled.div`
   margin: 4rem 0rem;
 `;

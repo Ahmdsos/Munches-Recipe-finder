@@ -3,33 +3,42 @@ import { useState } from 'react';
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+// Search component for entering ingredients
 function Search() {
-    const [input, setInput] = useState("");
-    const navigate = useNavigate();
+    const [input, setInput] = useState(""); // State for input value
+    const navigate = useNavigate(); // Navigation hook
 
+    // Function to handle form submission
     const submitHandler = (e) => {
-        e.preventDefault();
-        navigate('/searched/' + input);
+        e.preventDefault(); // Prevent default form submission behavior
+        navigate('/searched/' + input); // Navigate to search results page
     }
 
     return (
         <FormStyle onSubmit={submitHandler}>
+            {/* Search input container */}
             <SearchContainer>
+                {/* Search input field */}
                 <SearchInput
                     placeholder="Enter ingredients separated by comma (,)"
                     onChange={(e) => setInput(e.target.value)}
                     type="text"
                     value={input}
                 />
-                <SearchIcon />
+                {/* Search icon */}
+                <SearchButton type="submit">
+                    <FaSearchIcon />
+                </SearchButton>
             </SearchContainer>
+            {/* Hint for entering ingredients */}
             <Hint>
-            Hint: flour, sugar, butter, eggs, eggs whites, baking powder, vanilla, milk, chocolate, strawberries
+                Hint: flour, sugar, butter, eggs, egg whites, baking powder, vanilla, milk, chocolate, strawberries
             </Hint>
         </FormStyle>
     );
 }
 
+// Styled components
 const FormStyle = styled.form`
     margin: 0 auto;
     text-align: center;
@@ -50,13 +59,17 @@ const SearchContainer = styled.div`
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
 `;
 
-const SearchIcon = styled(FaSearch)`
+const SearchButton = styled.button`
+    background: none;
+    border: none;
     position: absolute;
     right: 20px;
-    color: #333; // Dark color for contrast
-    font-size: 24px;
     cursor: pointer;
+    color: #333; // Dark color for contrast
+`;
 
+const FaSearchIcon = styled(FaSearch)`
+    font-size: 24px;
 `;
 
 const SearchInput = styled.input`
@@ -74,8 +87,8 @@ const SearchInput = styled.input`
     }
 
     &:focus {
-        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.5); // Focus ring in orange
-            border-radius: 50px;
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.5); 
+        border-radius: 50px;
     }
 `;
 
@@ -83,8 +96,8 @@ const Hint = styled.div`
     font-size: 12px;
     color: #666;
     margin-top: 10px;
-    padding: 0 20px; // Padding for better text alignment
-    text-align: left; // Left align for easier readability
+    padding: 0 20px; 
+    text-align: left;
 `;
 
 export default Search;

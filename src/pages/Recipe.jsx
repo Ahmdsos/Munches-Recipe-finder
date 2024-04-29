@@ -306,7 +306,7 @@ const NutritionWrapper = styled.div`
 
 const NutritionImage = styled.img`
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   height: auto;
   margin-top: 1rem;
   border-radius: 8px;

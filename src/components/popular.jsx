@@ -1,25 +1,32 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/splide/dist/css/splide.min.css';
 import { Link } from "react-router-dom";
 
+// Component for displaying popular recipes
 export default function Popular() {
+  // State to store popular recipes
   const [popular, setPopular] = useState([]);
 
+  // Fetch popular recipes on component mount
   useEffect(() => {
     getPopular();
   }, []);
 
+  // Function to fetch popular recipes
   const getPopular = async () => {
     const check = localStorage.getItem('popular');
     if (check) {
+      // If data exists in local storage, set it in state
       setPopular(JSON.parse(check));
     } else {
+      // Fetch data from API if not available in local storage
       const api = await fetch(
         `https://api.spoonacular.com/recipes/random?apiKey=${process.env.REACT_APP_API_KEY}&number=12`
       );
       const data = await api.json();
+      // Store fetched data in local storage and set in state
       localStorage.setItem("popular", JSON.stringify(data.recipes));
       setPopular(data.recipes);
     }
@@ -27,7 +34,9 @@ export default function Popular() {
 
   return (
     <Wrapper>
+      {/* Heading for popular recipes */}
       <Heading>Popular Recipes</Heading>
+      {/* Splide carousel for displaying popular recipes */}
       <Splide options={{
         perPage: 3,
         arrows: false,
@@ -43,11 +52,16 @@ export default function Popular() {
           }
         }
       }}>
+        {/* Map through popular recipes and render each as a SplideSlide */}
         {popular.map(recipe => (
           <SplideSlide key={recipe.id}>
+            {/* Card for each recipe */}
             <Card>
+              {/* Link to individual recipe page */}
               <Link to={'/recipe/' + recipe.id}>
+                {/* Image of the recipe */}
                 <img src={recipe.image} alt={recipe.title} />
+                {/* Overlay with recipe title */}
                 <Overlay>
                   <Title>{recipe.title}</Title>
                 </Overlay>
@@ -60,6 +74,7 @@ export default function Popular() {
   );
 }
 
+// Styled components
 const Wrapper = styled.div`
   margin: 4rem 0rem;
 `;
@@ -121,4 +136,3 @@ const Title = styled.p`
   font-size: 1.2rem;
   text-align: center;
 `;
-
