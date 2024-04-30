@@ -1,34 +1,40 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import { auth } from '../firebase-config';  // Adjust the path according to your project structure
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoMailOutline, IoKeyOutline, IoLogoGoogle } from 'react-icons/io5';
 
+// SignIn component handles user sign-in functionality including Google sign-in
 const SignIn = () => {
+  // State hooks for managing email and password inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // Hook to navigate programmatically after successful sign-in
   const navigate = useNavigate();
 
+  // Function to handle sign-in with email and password
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate('/');  // Navigate to home page after successful sign-in
     } catch (error) {
-      console.error(error.message);
+      console.error('Error during sign in:', error.message);  // Log error if sign-in fails
     }
   };
 
+  // Function to handle sign-in using Google authentication
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      navigate('/');
+      navigate('/');  // Navigate to home page after successful Google sign-in
     } catch (error) {
-      console.error(error);
+      console.error('Error during Google sign in:', error);  // Log error if Google sign-in fails
     }
   };
 
+  // Component layout using styled-components for styling
   return (
     <AuthContainer>
       <InputGroup>
@@ -48,6 +54,7 @@ const SignIn = () => {
   );
 };
 
+// Styled-components for styling the sign-in form and its elements
 const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -81,9 +88,8 @@ const Input = styled.input`
   border: 2px solid #ccc;
   border-radius: 8px;
   transition: border-color 0.3s ease;
-
   &:focus {
-    border-color: #007BFF;
+    border-color: #007BFF;  // Highlight the input border on focus
   }
 `;
 
@@ -97,9 +103,8 @@ const SignInButton = styled.button`
   border-radius: 5px;
   font-size: 16px;
   transition: background-color 0.3s ease;
-
   &:hover {
-    background-color: rgb(242, 127, 0);
+    background-color: rgb(242, 127, 0);  // Darken button on hover
   }
 `;
 
@@ -116,9 +121,8 @@ const GoogleButton = styled.button`
   border-radius: 5px;
   font-size: 16px;
   transition: background-color 0.3s ease;
-
   &:hover {
-    background-color: #C62828;
+    background-color: #C62828;  // Darken button on hover
   }
 `;
 

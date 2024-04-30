@@ -3,15 +3,16 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 
 function Recipe() {
-  const { name } = useParams();
-  const [details, setDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Instructions'); 
-  const [nutritionImage, setNutritionImage] = useState(null);
-  const [ingredientImage, setIngredientImage] = useState(null);
-  const [tasteImage, setTasteImage] = useState(null);
-  const [equipmentImage, setEquipmentImage] = useState(null);
+  const { name } = useParams(); // Extracting the recipe name from URL parameters
+  const [details, setDetails] = useState({}); // State to store recipe details
+  const [isLoading, setIsLoading] = useState(true); // State to track loading status
+  const [activeTab, setActiveTab] = useState('Instructions'); // State to manage active tab
+  const [nutritionImage, setNutritionImage] = useState(null); // State to store nutrition image URL
+  const [ingredientImage, setIngredientImage] = useState(null); // State to store ingredient image URL
+  const [tasteImage, setTasteImage] = useState(null); // State to store taste image URL
+  const [equipmentImage, setEquipmentImage] = useState(null); // State to store equipment image URL
 
+  // Fetch recipe details when component mounts or name changes
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -32,12 +33,13 @@ function Recipe() {
 
     fetchDetails();
 
+    // Cleanup function to cancel any pending requests
     return () => {
-      // Cleanup function
-      // You may want to add cleanup logic here if necessary
+
     };
   }, [name]);
 
+  // Fetch nutrition image when active tab is 'Nutrition'
   useEffect(() => {
     const fetchNutritionImage = async () => {
       try {
@@ -59,6 +61,7 @@ function Recipe() {
     }
   }, [name, activeTab]);
 
+  // Fetch ingredient image when active tab is 'Ingredients'
   useEffect(() => {
     const fetchIngredientImage = async () => {
       try {
@@ -80,6 +83,7 @@ function Recipe() {
     }
   }, [name, activeTab]);
 
+  // Fetch taste image when active tab is 'Taste'
   useEffect(() => {
     const fetchTasteImage = async () => {
       try {
@@ -101,6 +105,7 @@ function Recipe() {
     }
   }, [name, activeTab]);
 
+  // Fetch equipment image when active tab is 'Equipment'
   useEffect(() => {
     const fetchEquipmentImage = async () => {
       try {
@@ -122,6 +127,7 @@ function Recipe() {
     }
   }, [name, activeTab]);
 
+  // Event handlers to set active tab
   const handleNutritionClick = () => {
     setActiveTab('Nutrition');
   };
