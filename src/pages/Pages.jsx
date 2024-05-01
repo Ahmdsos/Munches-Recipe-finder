@@ -4,7 +4,7 @@ import Cuisine from './Cuisine';
 import Searched from './Searched';
 import Recipe from './Recipe';
 import { Route, Routes } from 'react-router-dom';
-
+import FavoritesPage from './Favorites';
 // Component for defining routes for different pages
 function Pages() {
   return (
@@ -17,6 +17,8 @@ function Pages() {
       <Route path="/searched/:search" element={<Searched />} />
       {/* Route for displaying individual recipe */}
       <Route path="/recipe/:name" element={<Recipe />} />
+       {/* Route for displaying favorites recipe */}
+      <Route path="/favorites" element={<FavoritesPage />} />
     </Routes>
   );
 }

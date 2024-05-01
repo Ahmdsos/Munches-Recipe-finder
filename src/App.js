@@ -14,7 +14,7 @@ function App() {
   const [user, loading] = useAuthState(auth); // Check if user is authenticated
 
   if (loading) {
-    return <p>Loading...</p>; // Show loading message while authentication state is loading
+    return <p>Loading...</p>; 
   }
 
   return (
@@ -22,9 +22,9 @@ function App() {
       <BrowserRouter>
         <Nav>
           {/* Navigation bar */}
-          <Logo to="/">
+          <Link to="/">
             <img src={logo} alt="Munches logo" />
-          </Logo>
+          </Link>
           {/* Show logout button if user is signed in, otherwise show sign-in/sign-up buttons */}
           {user ? (
             <LogoutButton onClick={() => auth.signOut()}>Logout</LogoutButton>
@@ -55,26 +55,17 @@ function App() {
 }
 
 // Styled components for navigation
-const Logo = styled(Link)`
-  width: 700px;
-  height: 250px;
-  img {
-    width: 100%;
-    height: 120%;
-    object-fit: contain;
-  }
-`;
 
 const Nav = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  justify-content: space-between;
 `;
 
 const LogoutButton = styled.button`
-  padding: 8px 16px;
-  margin-top: 10px;
+padding: 8px 16px;
   background-color: #ff6347;
   color: white;
   border: none;

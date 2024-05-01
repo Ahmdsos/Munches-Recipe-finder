@@ -1,52 +1,53 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase-config';  // Adjust the path according to your project structure
+import { auth } from '../firebase-config'; // Adjust the path according to your project structure
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoMailOutline, IoKeyOutline, IoLogoGoogle } from 'react-icons/io5';
 
-// SignIn component handles user sign-in functionality including Google sign-in
 const SignIn = () => {
-  // State hooks for managing email and password inputs
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  // Hook to navigate programmatically after successful sign-in
+  const [email, setEmail] = useState(''); // State for email input
+  const [password, setPassword] = useState(''); // State for password input
+  const [error, setError] = useState(''); // State for managing error messages
+  const [loading, setLoading] = useState(false); // State to handle loading during API call
   const navigate = useNavigate();
 
-  // Function to handle sign-in with email and password
   const handleSignIn = async () => {
+    setLoading(true); // Start loading before API call
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');  // Navigate to home page after successful sign-in
+      navigate('/'); // Navigate to home page after successful sign-in
     } catch (error) {
-      console.error('Error during sign in:', error.message);  // Log error if sign-in fails
+      setError('Email or password not correct'); // Set error message on failure
+      setLoading(false); // Stop loading when API call fails
     }
   };
 
-  // Function to handle sign-in using Google authentication
   const googleSignIn = async () => {
+    setLoading(true); // Start loading before API call
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      navigate('/');  // Navigate to home page after successful Google sign-in
+      navigate('/'); // Navigate to home page after successful Google sign-in
     } catch (error) {
-      console.error('Error during Google sign in:', error);  // Log error if Google sign-in fails
+      setError('Email or password not correct'); // Set error message on failure
+      setLoading(false); // Stop loading when API call fails
     }
   };
 
-  // Component layout using styled-components for styling
   return (
     <AuthContainer>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       <InputGroup>
         <Icon><IoMailOutline size="1.5em" /></Icon>
-        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" disabled={loading} />
       </InputGroup>
       <InputGroup>
         <Icon><IoKeyOutline size="1.5em" /></Icon>
-        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" disabled={loading} />
       </InputGroup>
-      <SignInButton onClick={handleSignIn}>Sign In</SignInButton>
-      <GoogleButton onClick={googleSignIn}>
+      <SignInButton onClick={handleSignIn} disabled={loading}>Sign In</SignInButton>
+      <GoogleButton onClick={googleSignIn} disabled={loading}>
         <IoLogoGoogle size="1.5em" />
         Sign In with Google
       </GoogleButton>
@@ -54,7 +55,6 @@ const SignIn = () => {
   );
 };
 
-// Styled-components for styling the sign-in form and its elements
 const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,7 +89,7 @@ const Input = styled.input`
   border-radius: 8px;
   transition: border-color 0.3s ease;
   &:focus {
-    border-color: #007BFF;  // Highlight the input border on focus
+    border-color: #007BFF;
   }
 `;
 
@@ -104,7 +104,7 @@ const SignInButton = styled.button`
   font-size: 16px;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: rgb(242, 127, 0);  // Darken button on hover
+    background-color: rgb(242, 127, 0);
   }
 `;
 
@@ -122,8 +122,19 @@ const GoogleButton = styled.button`
   font-size: 16px;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: #C62828;  // Darken button on hover
+    background-color: #C62828;
   }
+`;
+
+const ErrorMessage = styled.div`
+  color: #D32F2F;
+  background-color: #FFF0F0;
+  border: 1px solid #D32F2F;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
 `;
 
 export default SignIn;

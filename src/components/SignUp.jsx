@@ -1,52 +1,65 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase-config';  // Adjust the path according to your project structure
+import { auth } from '../firebase-config';  
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoMailOutline, IoKeyOutline, IoLogoGoogle } from 'react-icons/io5';
 
-// Component for user sign-up functionality
+// Functional component for handling the sign-up process
 const SignUp = () => {
-  // State hooks for storing user input for email and password
+  // State hooks for managing email, password, error messages, and loading state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // Navigation hook to redirect users programmatically
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
-  // Function to handle the creation of a user account using email and password
+  // Function to handle the sign-up process with email and password
   const handleSignUp = async () => {
+    if (!email.includes('@')) { // Validate email format
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 8) { // Ensure password is at least 8 characters long
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+    setLoading(true); // Set loading state to true during the authentication process
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/'); // Navigate to the home page after successful sign-up
+      navigate('/'); // Navigate to home page on successful sign up
     } catch (error) {
-      console.error('Error during sign up:', error.message); // Log errors if sign-up fails
+      setError('Failed to create account. Please try again.'); // Handle errors like email already in use
+      setLoading(false); // Reset loading state
     }
   };
 
-  // Function to handle Google sign-in functionality
+  // Function for handling sign-up using Google authentication
   const googleSignIn = async () => {
+    setLoading(true); // Set loading state
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      navigate('/'); // Navigate to the home page after successful Google sign-in
+      navigate('/'); // Navigate to home page on successful sign up
     } catch (error) {
-      console.error('Error during Google sign in:', error); // Log errors if Google sign-in fails
+      setError('Google sign-in failed. Please try again.'); // Handle errors
+      setLoading(false); // Reset loading state
     }
   };
 
-  // Component layout using styled-components for styling
   return (
-    <AuthContainer>
-      <InputGroup>
+    <AuthContainer> 
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <InputGroup> 
         <Icon><IoMailOutline size="1.5em" /></Icon>
-        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" disabled={loading} />
       </InputGroup>
-      <InputGroup>
-        <Icon><IoKeyOutline size="1.5em" /></Icon>
-        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <InputGroup> 
+        <Icon><IoKeyOutline size="1.5em" /></Icon> 
+        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" disabled={loading} />
       </InputGroup>
-      <SignUpButton onClick={handleSignUp}>Sign Up</SignUpButton>
-      <GoogleButton onClick={googleSignIn}>
+      <SignUpButton onClick={handleSignUp} disabled={loading}>Sign Up</SignUpButton>  
+      <GoogleButton onClick={googleSignIn} disabled={loading}> 
         <IoLogoGoogle size="1.5em" />
         Sign Up with Google
       </GoogleButton>
@@ -54,7 +67,8 @@ const SignUp = () => {
   );
 };
 
-// Styled component for the authentication container
+// Styled components definitions for various UI elements used in the SignUp component
+
 const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -68,14 +82,12 @@ const AuthContainer = styled.div`
   margin: auto;
 `;
 
-// Styled component for grouping input and icon
 const InputGroup = styled.div`
   display: flex;
   align-items: center;
   margin: 15px;
 `;
 
-// Styled component for input icon container
 const Icon = styled.div`
   display: flex;
   align-items: center;
@@ -83,7 +95,6 @@ const Icon = styled.div`
   margin-right: 10px;
 `;
 
-// Styled input component for form inputs
 const Input = styled.input`
   padding: 12px;
   width: 250px;
@@ -92,11 +103,10 @@ const Input = styled.input`
   border-radius: 8px;
   transition: border-color 0.3s ease;
   &:focus {
-    border-color: #007BFF; // Change border color on focus for visual feedback
+    border-color: #007BFF;
   }
 `;
 
-// Styled button for submitting the sign-up form
 const SignUpButton = styled.button`
   margin-top: 20px;
   padding: 12px 25px;
@@ -108,11 +118,10 @@ const SignUpButton = styled.button`
   font-size: 16px;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: rgb(17, 174, 75); // Darken the button on hover
+    background-color: rgb(17, 174, 75);
   }
 `;
 
-// Styled button for Google sign-in
 const GoogleButton = styled.button`
   display: flex;
   align-items: center;
@@ -127,8 +136,19 @@ const GoogleButton = styled.button`
   font-size: 16px;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: #C62828; // Darken the button on hover
+    background-color: #C62828;
   }
+`;
+
+const ErrorMessage = styled.div`
+  color: #D32F2F;
+  background-color: #FFF0F0;
+  border: 1px solid #D32F2F;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
 `;
 
 export default SignUp;

@@ -1,30 +1,32 @@
 import React, { useEffect, useState } from "react";
 import styled from 'styled-components';
 import { useParams } from "react-router-dom";
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { db, auth } from '../firebase-config'; 
+import { FaHeart, FaRegHeart } from 'react-icons/fa'; // Importing heart icons from react-icons
 
 function Recipe() {
-  const { name } = useParams(); // Extracting the recipe name from URL parameters
-  const [details, setDetails] = useState({}); // State to store recipe details
-  const [isLoading, setIsLoading] = useState(true); // State to track loading status
-  const [activeTab, setActiveTab] = useState('Instructions'); // State to manage active tab
-  const [nutritionImage, setNutritionImage] = useState(null); // State to store nutrition image URL
-  const [ingredientImage, setIngredientImage] = useState(null); // State to store ingredient image URL
-  const [tasteImage, setTasteImage] = useState(null); // State to store taste image URL
-  const [equipmentImage, setEquipmentImage] = useState(null); // State to store equipment image URL
+  const { name } = useParams(); // Extract recipe name from the URL parameters
+  const [details, setDetails] = useState({}); // State to store the detailed info of recipe
+  const [isLoading, setIsLoading] = useState(true); // State to manage loading status
+  const [activeTab, setActiveTab] = useState('Instructions'); // State to manage which tab is active
+  const [nutritionImage, setNutritionImage] = useState(null); // State to store the URL of the nutrition image
+  const [ingredientImage, setIngredientImage] = useState(null); // State to store the URL of the ingredient image
+  const [tasteImage, setTasteImage] = useState(null); // State to store the URL of the taste image
+  const [equipmentImage, setEquipmentImage] = useState(null); // State to store the URL of the equipment image
+  const [isFavorited, setIsFavorited] = useState(false); // State to track if the recipe is favorited
 
-  // Fetch recipe details when component mounts or name changes
   useEffect(() => {
+    // Function to fetch recipe details
     const fetchDetails = async () => {
       try {
         const response = await fetch(
           `https://api.spoonacular.com/recipes/${name}/information?apiKey=${process.env.REACT_APP_API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error('Failed to fetch recipe details');
-        }
         const detailData = await response.json();
         setDetails(detailData);
         setIsLoading(false);
+        checkFavoriteStatus(detailData.id);
       } catch (error) {
         console.error('Error fetching recipe details:', error);
         setIsLoading(false);
@@ -32,154 +34,96 @@ function Recipe() {
     };
 
     fetchDetails();
-
-    // Cleanup function to cancel any pending requests
-    return () => {
-
-    };
   }, [name]);
 
-  // Fetch nutrition image when active tab is 'Nutrition'
   useEffect(() => {
-    const fetchNutritionImage = async () => {
+    // Fetch image for the active tab
+    const fetchImage = async (widgetType, setImage) => {
       try {
         const response = await fetch(
-          `https://api.spoonacular.com/recipes/${name}/nutritionWidget.png?apiKey=${process.env.REACT_APP_API_KEY}`
+          `https://api.spoonacular.com/recipes/${details.id}/${widgetType}?apiKey=${process.env.REACT_APP_API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error('Failed to fetch nutrition image');
-        }
         const imageUrl = await response.url;
-        setNutritionImage(imageUrl);
+        setImage(imageUrl);
       } catch (error) {
-        console.error('Error fetching nutrition image:', error);
+        console.error(`Error fetching ${widgetType}:`, error);
       }
     };
 
-    if (activeTab === 'Nutrition') {
-      fetchNutritionImage();
-    }
-  }, [name, activeTab]);
-
-  // Fetch ingredient image when active tab is 'Ingredients'
-  useEffect(() => {
-    const fetchIngredientImage = async () => {
-      try {
-        const response = await fetch(
-          `https://api.spoonacular.com/recipes/${name}/ingredientWidget.png?apiKey=${process.env.REACT_APP_API_KEY}`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch ingredient image');
-        }
-        const imageUrl = await response.url;
-        setIngredientImage(imageUrl);
-      } catch (error) {
-        console.error('Error fetching ingredient image:', error);
+    if (details.id && activeTab) {
+      if (activeTab === 'Nutrition') {
+        fetchImage('nutritionWidget.png', setNutritionImage);
+      } else if (activeTab === 'Ingredients') {
+        fetchImage('ingredientWidget.png', setIngredientImage);
+      } else if (activeTab === 'Taste') {
+        fetchImage('tasteWidget.png', setTasteImage);
+      } else if (activeTab === 'Equipment') {
+        fetchImage('equipmentWidget.png', setEquipmentImage);
       }
-    };
-
-    if (activeTab === 'Ingredients') {
-      fetchIngredientImage();
     }
-  }, [name, activeTab]);
+  }, [details.id, activeTab]);
 
-  // Fetch taste image when active tab is 'Taste'
-  useEffect(() => {
-    const fetchTasteImage = async () => {
-      try {
-        const response = await fetch(
-          `https://api.spoonacular.com/recipes/${name}/tasteWidget.png?apiKey=${process.env.REACT_APP_API_KEY}`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch taste image');
-        }
-        const imageUrl = await response.url;
-        setTasteImage(imageUrl);
-      } catch (error) {
-        console.error('Error fetching taste image:', error);
+  const checkFavoriteStatus = async (recipeId) => {
+    if (auth.currentUser) {
+      const docRef = doc(db, "favorites", auth.currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists() && docSnap.data().recipeIds.includes(recipeId)) {
+        setIsFavorited(true);
+      } else {
+        setIsFavorited(false);
       }
-    };
-
-    if (activeTab === 'Taste') {
-      fetchTasteImage();
     }
-  }, [name, activeTab]);
-
-  // Fetch equipment image when active tab is 'Equipment'
-  useEffect(() => {
-    const fetchEquipmentImage = async () => {
-      try {
-        const response = await fetch(
-          `https://api.spoonacular.com/recipes/${name}/equipmentWidget.png?apiKey=${process.env.REACT_APP_API_KEY}`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch equipment image');
-        }
-        const imageUrl = await response.url;
-        setEquipmentImage(imageUrl);
-      } catch (error) {
-        console.error('Error fetching equipment image:', error);
-      }
-    };
-
-    if (activeTab === 'Equipment') {
-      fetchEquipmentImage();
-    }
-  }, [name, activeTab]);
-
-  // Event handlers to set active tab
-  const handleNutritionClick = () => {
-    setActiveTab('Nutrition');
   };
 
-  const handleIngredientsClick = () => {
-    setActiveTab('Ingredients');
-  };
+  const toggleFavorite = async () => {
+    if (!auth.currentUser) {
+      alert("Please log in to use the favorite feature.");
+      return;
+    }
+    const docRef = doc(db, "favorites", auth.currentUser.uid);
+    const docSnap = await getDoc(docRef);
 
-  const handleTasteClick = () => {
-    setActiveTab('Taste');
-  };
-
-  const handleEquipmentClick = () => {
-    setActiveTab('Equipment');
+    if (docSnap.exists()) {
+      let favoritesArray = docSnap.data().recipeIds;
+      if (favoritesArray.includes(details.id)) {
+        await updateDoc(docRef, {
+          recipeIds: arrayRemove(details.id)
+        });
+        setIsFavorited(false);
+      } else {
+        await updateDoc(docRef, {
+          recipeIds: arrayUnion(details.id)
+        });
+        setIsFavorited(true);
+      }
+    } else {
+      await setDoc(docRef, {
+        recipeIds: [details.id]
+      });
+      setIsFavorited(true);
+    }
   };
 
   return (
     <DetailWrapper>
       {isLoading ? (
-        <></>
+        <p>Recipe Loading...</p>
       ) : (
         <>
           <RecipeDetails>
             <RecipeTitle>{details.title}</RecipeTitle>
             <RecipeImage src={details.image} alt={details.title} />
+            <FavoriteButton onClick={toggleFavorite} active={isFavorited}>
+              {isFavorited ? <FaHeart  />  : <FaRegHeart />}
+              
+            </FavoriteButton>
           </RecipeDetails>
           <Tabs>
-            <TabButton 
-              active={activeTab === 'Instructions'}
-              onClick={() => setActiveTab('Instructions')}>
-              Instructions
-            </TabButton>
-            <TabButton 
-              active={activeTab === 'Ingredients'}
-              onClick={handleIngredientsClick}>
-              Ingredients
-            </TabButton>
-            <TabButton 
-              active={activeTab === 'Nutrition'}
-              onClick={handleNutritionClick}>
-              Nutrition
-            </TabButton>
-            <TabButton 
-              active={activeTab === 'Taste'}
-              onClick={handleTasteClick}>
-              Taste
-            </TabButton>
-            <TabButton 
-              active={activeTab === 'Equipment'}
-              onClick={handleEquipmentClick}>
-              Equipment
-            </TabButton>
+            <TabButton active={activeTab === 'Instructions'} onClick={() => setActiveTab('Instructions')}>Instructions</TabButton>
+            <TabButton active={activeTab === 'Ingredients'} onClick={() => setActiveTab('Ingredients')}>Ingredients</TabButton>
+            <TabButton active={activeTab === 'Nutrition'} onClick={() => setActiveTab('Nutrition')}>Nutrition</TabButton>
+            <TabButton active={activeTab === 'Taste'} onClick={() => setActiveTab('Taste')}>Taste</TabButton>
+            <TabButton active={activeTab === 'Equipment'} onClick={() => setActiveTab('Equipment')}>Equipment</TabButton>
           </Tabs>
           <TabContent>
             {activeTab === 'Instructions' && (
@@ -191,28 +135,10 @@ function Recipe() {
                 <InstructionSummary dangerouslySetInnerHTML={{__html:details.summary}} />
               </Instructions>
             )}
-            {activeTab === 'Ingredients' && (
-              <IngredientsWrapper>
-                {ingredientImage && (
-                  <IngredientsImage src={ingredientImage} alt="Ingredients" />
-                )}
-              </IngredientsWrapper>
-            )}
-            {activeTab === 'Nutrition' && nutritionImage && (
-              <NutritionWrapper>
-                <NutritionImage src={nutritionImage} alt="Nutrition" />
-              </NutritionWrapper>
-            )}
-            {activeTab === 'Taste' && tasteImage && (
-              <TasteWrapper>
-                <TasteImage src={tasteImage} alt="Taste" />
-              </TasteWrapper>
-            )}
-            {activeTab === 'Equipment' && equipmentImage && (
-              <EquipmentWrapper>
-                <EquipmentImage src={equipmentImage} alt="Equipment" />
-              </EquipmentWrapper>
-            )}
+            {activeTab === 'Ingredients' && <IngredientsWrapper><IngredientsImage src={ingredientImage} alt="Ingredients" /></IngredientsWrapper>}
+            {activeTab === 'Nutrition' && <NutritionWrapper><NutritionImage src={nutritionImage} alt="Nutrition" /></NutritionWrapper>}
+            {activeTab === 'Taste' && <TasteWrapper><TasteImage src={tasteImage} alt="Taste" /></TasteWrapper>}
+            {activeTab === 'Equipment' && <EquipmentWrapper><EquipmentImage src={equipmentImage} alt="Equipment" /></EquipmentWrapper>}
           </TabContent>
         </>
       )}
@@ -220,6 +146,7 @@ function Recipe() {
   );
 }
 
+// Styled components for UI
 const DetailWrapper = styled.div`
   margin-top: 2rem;
   padding: 1rem;
@@ -245,6 +172,23 @@ const RecipeImage = styled.img`
   height: auto;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+`;
+
+const FavoriteButton = styled.button`
+  display: block;
+  margin: 10px auto 0;
+  padding: 8px 16px;
+  background-color: ${props => props.active ? '#FF6347' : '#ccc'};
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+
+  &:hover {
+    background-color: ${props => props.active ? '#FF4500' : '#FF6347'};
+  }
 `;
 
 const Tabs = styled.div`
