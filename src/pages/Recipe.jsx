@@ -195,6 +195,8 @@ const Tabs = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
 `;
 
 const TabButton = styled.button`
